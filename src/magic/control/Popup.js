@@ -96,7 +96,8 @@ magic.control.Popup = baidu.lang.createClass(function(options){
 	var prot = baidu.global.get("popupProtect");
 	me.on("show", function(){
 		me.reposition();
-		list[me.guid] = true;
+		// 这句延迟是为了el.click->show()，doc.click->hide()导致popup不能显示的问题
+		setTimeout(function(){list[me.guid] = true;}, 1);
 		me._host && baidu.event.on(me._host, "onclick", protect);
 		baidu.event.on(me.getElement(), "onclick", protect);
 		baidu.event.on(window, "onresize", resize);
@@ -138,6 +139,7 @@ magic.control.Popup = baidu.lang.createClass(function(options){
 			me.top = position.top + me.offsetY + me._host.offsetHeight;
 			me.left= position.left+ me.offsetX;
 			// 20120116 meizz
+			me._resupinate = false;	// 向上翻转的
 			if(me.smartPosition) {
 				var oh = me.getElement().offsetHeight;	// popup.offsetHeight
 				var ph = baidu.page.getViewHeight();	// 浏览器可视区域高
@@ -145,6 +147,7 @@ magic.control.Popup = baidu.lang.createClass(function(options){
 				var up = position.top-me.offsetY-oh;	// popup向上翻时的 top 值
 				if(me.top+oh > st+ph && up > st && up < st+ph) {
 					me.top = position.top-me.offsetY-oh;
+					me._resupinate = true;
 				}
 			}
 		}
