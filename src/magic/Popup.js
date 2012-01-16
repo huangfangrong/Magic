@@ -61,6 +61,7 @@
 
 		me.on("dispose", function(){
 			me.className && baidu.dom.removeClass(box.getElement(), me.className);
+			me.setContent("");
 			box.busy = false;
 		});
 	};

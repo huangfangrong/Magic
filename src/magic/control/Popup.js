@@ -102,6 +102,8 @@ magic.control.Popup = baidu.lang.createClass(function(options){
 		baidu.event.on(me.getElement(), "onclick", protect);
 		baidu.event.on(window, "onresize", resize);
 		baidu.event.on(document, "onkeyup", escape);
+		me.width!="auto" && me.setWidth(me.width);
+		me.height!="auto" && me.setHeight(me.height);
 		me.visible = true;
 	});
 	me.on("hide", function(){

@@ -29,6 +29,8 @@
  * @param	{JSON}		options 	参数设置
  * @config	{Boolean}	autoHide 	[r/w]是否自动隐藏
  * @config  {Boolean}	visible 	[r]弹出层当前是否显示？
+ * @config  {Boolean}	smartPosition	[r/w]弹出层会根据屏幕可视区域的大小自动向下或向上翻转
+ * @config  {Boolean}	disposeOnHide	[r/w]在 hide 方法执行的时候自动析构
  * @config  {Boolean}	hideOnEscape[r/w]在用户按[ESC]键时是否隐藏当前弹出层
  * @config  {Number}	offsetX 	[r/w]定位时的偏移量，X方向
  * @config  {Number}	offsetY 	[r/w]定位时的偏移量，Y方向
@@ -46,12 +48,14 @@
 	magic.Tooltip = baidu.lang.createClass(function(options){
 		var me = this;
 
-		me.align = "left";	// left|center|right
-		me.direction = "top";
+		me.align = "left";		// left|center|right
+		me.direction = "top";	// top|bottom
 		me.autoHide = false;
 		me.styleBox = true;
+		me.offsetY = 12;
 		me.content = "";
 		me.smartPosition = false;
+		me.disposeOnHide = true;
 
 		baidu.object.extend(me, options || {})
 
@@ -61,12 +65,15 @@
 		box.getElement().style.zIndex = baidu.global.getZIndex("popup");
 		me.background = new magic.Background({coverable:true, styleBox:me.styleBox});
 		me.background.render(me.getElement());
-		var html= "<div class='arrow_top'></div><div class='arrow_bottom'></div>";
-		var bgl = me.background.getElement();
-		baidu.dom.insertHTML(bgl, "afterbegin", html);
-		baidu.dom.addClass(bgl, "arrow_"+ me.align +" arrow_"+ me.direction);
+		baidu.dom.insertHTML(me.background.getElement(), "afterbegin", "<div class='arrow_top'></div><div class='arrow_bottom'></div>");
 		box.getElement("close").onclick=function(){me.hide(); return false;};
 		me.setContent(me.content);
+
+		me.on("show", function(){
+			me.smartPosition && me._resupinate && (me.direction = "bottom");
+			me.background.getElement().className = "tang-background arrow_"+ me.align +" arrow_"+ me.direction;
+			// [TODO] 1.show被执行两次；2.smartPosition对左右的翻转处理
+		});
 
 		me.on("dispose", function(){
 			bgl.parentNode.removeChild(bgl);
