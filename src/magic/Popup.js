@@ -12,7 +12,10 @@
 ///import baidu.lang.inherits;
 ///import baidu.dom.insertHTML;
 ///import baidu.dom.g;
+///import baidu.dom.addClass;
+///import baidu.dom.removeClass;
 ///import baidu.object.extend;
+///import baidu.global.getZIndex;
 
 ///import magic.Background;
 
