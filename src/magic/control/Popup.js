@@ -137,11 +137,13 @@ magic.control.Popup = baidu.lang.createClass(function(options){
 		if (position) {
 			me.top = position.top + me.offsetY + me._host.offsetHeight;
 			me.left= position.left+ me.offsetX;
+			// 20120116 meizz
 			if(me.smartPosition) {
-				var oh = me.getElement().offsetHeight;
-				var ph = baidu.page.getViewHeight();
-				var st = baidu.page.getScrollTop();
-				if(me.top+oh > st+ph && position.top-me.offsetY-oh > st) {
+				var oh = me.getElement().offsetHeight;	// popup.offsetHeight
+				var ph = baidu.page.getViewHeight();	// 浏览器可视区域高
+				var st = baidu.page.getScrollTop();		// 浏览器滚动条位置 Y
+				var up = position.top-me.offsetY-oh;	// popup向上翻时的 top 值
+				if(me.top+oh > st+ph && up > st && up < st+ph) {
 					me.top = position.top-me.offsetY-oh;
 				}
 			}
