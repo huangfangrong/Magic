@@ -12,6 +12,7 @@
 ///import baidu.lang.inherits;
 
 ///import baidu.object.extend;
+///import baidu.dom.g;
 ///import baidu.dom.insertHTML;
 ///import baidu.page.getWidth;
 ///import baidu.page.getHeight;
@@ -34,57 +35,76 @@
  * @config  {Number}		opacity 	[r/w]背景层透明度，取值 0-1
  * @config  {HTMLElement}	container 	[r/w]遮罩层的容器，默认为 document.body
  */
-magic.Mask = function(options){
-	var me = this;
-	magic.control.Layer.call(this);
+(function(){
+	
+	magic.Mask = function(options){
+		var me = this;
+		magic.control.Layer.call(this);
 
-	me.zIndex = 999;
-	me.opacity = 0.3;
-	me.bgColor = "#000000";
-	me.coverable = false;
-	me.container = document.body;
+		// [public property]
+		me.zIndex = 999;
+		me.opacity = 0.3;
+		me.bgColor = "#000000";
+		me.coverable = false;
+		me.container = null;
 
-	baidu.object.extend(me, options || {});
+		baidu.object.extend(me, options || {});
+		me.container && (me.container = baidu.dom.g(me.container));
 
-	me.width = me.height = "100%";
+		// [private property]
+		me.width = me.height = "100%";
 
-	baidu.dom.insertHTML(me.container, "afterbegin", me.toHTMLString());
+		me.on("beforeshow", function(){
+			me.box = factory.produce();
+			me.mappingDom("", me.box.getElement());
+			var box = me.box.getElement();
+			box.style.zIndex = me.zIndex;
+			box.style.opacity= me.opacity;
+			box.style.filter = "alpha(opacity=" + me.opacity * 100 + ")";
+			box.style.backgroundColor = me.bgColor;
+			(me.container || document.body).appendChild(me.box.getElement());
+			me.setSize([me.width, me.height]);
+		});
 
-	function resize(){
-		if (me.container == document.body) {
-			var ls = me.getElement().style;
-			ls.display = "none";
-			me.setSize([baidu.page.getWidth(), baidu.page.getHeight()]);
-			ls.display = "";
+		function resize(){
+			if (!me.container) {
+				var mask = me.getElement();
+				mask.style.display = "none";
+				me.setSize([baidu.page.getWidth(), baidu.page.getHeight()]);
+				mask.style.display = "";
+			}
 		}
-	}
 
-	me.on("show", function(){
-		resize();
-		baidu.event.on(window, "onresize", resize);
-		var es = me.getElement().style;
-		es.opacity = me.opacity;
-		es.zIndex = me.zIndex;
-		es.filter = "alpha(opacity=" + me.opacity * 100 + ")";
-		es.backgroundColor = me.bgColor;
-	});
+		me.on("show", function(){
+			resize();
+			!me.container && baidu.event.on(window, "onresize", resize);
+		});
 
-	me.on("hide", function(){
-		baidu.event.un(window, "onresize", resize);
-	});
+		me.on("hide", function(){
+			baidu.event.un(window, "onresize", resize);
+			me.box.busy = false;
+		});
 
-};
-baidu.lang.inherits(magic.Mask, magic.control.Layer, "magic.Mask").extend(
-/** @lends magic.Mask.prototype */
-{
-	/** 生成HTML字符串
-	 * @private
-	 */
-	toHTMLString : function(){
-		return "<div id='"+this.getId()+"' style='top:0px; left:0px; position:absolute; display:none;'>"
-			+(baidu.browser.ie < 7 ? "<iframe frameborder='0' style='"
-			+"filter:progid:DXImageTransform.Microsoft.Alpha(opacity:0);"
+	};
+	baidu.lang.inherits(magic.Mask, magic.control.Layer, "magic.Mask")
+
+	// 工厂模式，重复使用DOM元素
+    var factory = {list:[], produce : function(){
+        for(var i=0, n=this.list.length; i<n; i++) {
+            if (!this.list[i].busy) {
+                this.list[i].busy = true;
+                return this.list[i];
+            }
+        }
+        var box = new magic.Base();
+        baidu.dom.insertHTML(document.body, "afterbegin", 
+            "<div id='"+box.getId()+"' style='top:0px;left:0px; position:absolute; display:none;'>"
+			+(baidu.browser.ie < 7 ? "<iframe frameborder='0' id='"+box.getId("iframe")+"' style='"
+			+"filter:progid:DXImageTransform.Microsoft.Alpha(opacity:0);border:none;"
 			+"position:absolute;top:0px;left:0px;width:100%;height:100%;z-index:-1' "
-			+"src='about:blank'></iframe>" : "") +"</div>";
-	}
-});
+			+"src='about:blank'></iframe>" : "") +"</div>");
+        box.busy = true;
+        this.list.push(box);
+        return box;
+    }};
+})();
