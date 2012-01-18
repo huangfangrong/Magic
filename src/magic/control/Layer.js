@@ -33,14 +33,17 @@ magic.control.Layer = baidu.lang.createClass(function(setting){
 {
     /** 通用展现方法 */
     show : function(){
-        this.fire("onbeforeshow") && (this.getElement().style.display = "");
-        // this.setSize([this.width, this.height]);
-        this.fire("onshow");
+        if (this.fire("onbeforeshow")) {
+            this.getElement().style.display = "";
+            this.fire("onshow");
+        }
     }
 	/** 通用隐藏方法 */
     ,hide :  function(){
-        this.fire("onbeforehide") && (this.getElement().style.display = "none");
-        this.fire("onhide");
+        if (this.fire("onbeforehide")) {
+            this.getElement().style.display = "none";
+            this.fire("onhide");
+        }
     }
 
 

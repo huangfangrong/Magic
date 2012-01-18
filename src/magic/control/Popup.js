@@ -61,61 +61,7 @@ magic.control.Popup = baidu.lang.createClass(function(options){
 	me._parent = null;	// 可以多级 popup 嵌套
 	me._host = null;	// 被绑定的DOM对象，作为定位
 
-	/**
-	 * 将弹出层与某个DOM元素进行展现的位置绑定
-	 * @param	{HTMLElement}	el 		被绑定的元素
-	 * @param	{JSON}			options 展现的时候一个参数设置
-	 * @config  {Number}		offsetX 定位时的偏移量，X方向
-	 * @config  {Number}		offsetY 定位时的偏移量，Y方向
-	 * @config  {Number|String}	width 	弹出层的宽度，默认值 auto；200|200px|50%|12em|12cm
-	 * @config  {Number|String}	height 	弹出层的高度，默认值 auto
-	 */
-	me.attach = function(el, options) {
-		if(el = baidu.dom.g(el)) {
-			baidu.object.extend(this, options||{});
-
-			this._host = el;
-			this.show();
-		}
-	}
-
-	function resize(){me.reposition();}
-	function escape(e){
-		baidu.event.getKeyCode(window.event || e) == 27
-			&& me.hideOnEscape
-			&& me.autoHide
-			&& me.hide();
-	}
-	function protect(){
-		var pp = me;
-		do {prot[pp.guid] = true;}
-		while(pp = pp._parent);
-	}
-
-	var list = baidu.global.get("popupList");
-	var prot = baidu.global.get("popupProtect");
-	me.on("show", function(){
-		me.reposition();
-		// 这句延迟是为了el.click->show()，doc.click->hide()导致popup不能显示的问题
-		setTimeout(function(){list[me.guid] = true;}, 1);
-		me._host && baidu.event.on(me._host, "onclick", protect);
-		baidu.event.on(me.getElement(), "onclick", protect);
-		baidu.event.on(window, "onresize", resize);
-		baidu.event.on(document, "onkeyup", escape);
-		me.width!="auto" && me.setWidth(me.width);
-		me.height!="auto" && me.setHeight(me.height);
-		me.visible = true;
-	});
-	me.on("hide", function(){
-		me.visible = false;
-		delete list[me.guid];
-		me._host && baidu.event.un(me._host, "onclick", protect);
-		baidu.event.un(me.getElement(), "onclick", protect);
-		baidu.event.un(window, "onresize", resize);
-		baidu.event.un(document, "onkeyup", escape);
-		me.disposeOnHide && me.dispose();
-	});
-
+	me._init_control_popup();
 }, {
 	superClass: magic.control.Layer
 	, type:"magic.control.Popup"
@@ -127,6 +73,23 @@ magic.control.Popup = baidu.lang.createClass(function(options){
 	 */
 	setContent : function(content){
 		this.getElement("content").innerHTML = content;
+	}
+	/**
+	 * 将弹出层与某个DOM元素进行展现的位置绑定
+	 * @param	{HTMLElement}	el 		被绑定的元素
+	 * @param	{JSON}			options 展现的时候一个参数设置
+	 * @config  {Number}		offsetX 定位时的偏移量，X方向
+	 * @config  {Number}		offsetY 定位时的偏移量，Y方向
+	 * @config  {Number|String}	width 	弹出层的宽度，默认值 auto；200|200px|50%|12em|12cm
+	 * @config  {Number|String}	height 	弹出层的高度，默认值 auto
+	 */
+	,attach : function(el, options) {
+		if(el = baidu.dom.g(el)) {
+			baidu.object.extend(this, options||{});
+
+			this._host = el;
+			this.show();
+		}
 	}
 	
 	/**
@@ -153,6 +116,7 @@ magic.control.Popup = baidu.lang.createClass(function(options){
 				}
 			}
 		}
+		me.fire("reposition");
 		me.setPosition([me.left, me.top]);
 	}
 
@@ -169,6 +133,45 @@ magic.control.Popup = baidu.lang.createClass(function(options){
 	}
 	,setLeft : function(left) {
 		baidu.dom.setPixel(this.getElement(), "left",(this.left=left));
+	}
+	,_init_control_popup : function(){
+		var me = this;
+		function resize(){me.reposition();}
+		function escape(e){
+			baidu.event.getKeyCode(window.event || e) == 27
+				&& me.hideOnEscape
+				&& me.autoHide
+				&& me.hide();
+		}
+		function protect(){
+			var pp = me;
+			do {prot[pp.guid] = true;}
+			while(pp = pp._parent);
+		}
+
+		var list = baidu.global.get("popupList");
+		var prot = baidu.global.get("popupProtect");
+		me.on("show", function(){
+			me.reposition();
+			// 这句延迟是为了el.click->show()，doc.click->hide()导致popup不能显示的问题
+			setTimeout(function(){list[me.guid] = true;}, 1);
+			me._host && baidu.event.on(me._host, "onclick", protect);
+			baidu.event.on(me.getElement(), "onclick", protect);
+			baidu.event.on(window, "onresize", resize);
+			baidu.event.on(document, "onkeyup", escape);
+			me.width!="auto" && me.setWidth(me.width);
+			me.height!="auto" && me.setHeight(me.height);
+			me.visible = true;
+		});
+		me.on("hide", function(){
+			me.visible = false;
+			delete list[me.guid];
+			me._host && baidu.event.un(me._host, "onclick", protect);
+			baidu.event.un(me.getElement(), "onclick", protect);
+			baidu.event.un(window, "onresize", resize);
+			baidu.event.un(document, "onkeyup", escape);
+			me.disposeOnHide && me.dispose();
+		});
 	}
 });
 

@@ -70,6 +70,7 @@
 		me.setContent(me.content);
 
 		me.on("show", function(){
+            me.direction = "top";
 			me.smartPosition && me._resupinate && (me.direction = "bottom");
 			me.background.getElement().className = "tang-background arrow_"+ me.align +" arrow_"+ me.direction;
 			// [TODO] 1.show被执行两次；2.smartPosition对左右的翻转处理

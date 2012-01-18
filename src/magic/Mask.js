@@ -55,6 +55,9 @@
 		me.width = me.height = "100%";
 
 		me.on("beforeshow", function(){
+            // 避免重复
+            if (me.box && me.box.busy) return;
+
 			me.box = factory.produce();
 			me.mappingDom("", me.box.getElement());
 			var box = me.box.getElement();
@@ -82,7 +85,8 @@
 
 		me.on("hide", function(){
 			baidu.event.un(window, "onresize", resize);
-			me.box.busy = false;
+			me.box && (me.box.busy = false);
+			me.box = null;
 		});
 
 	};
