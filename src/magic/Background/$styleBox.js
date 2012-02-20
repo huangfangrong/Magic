@@ -28,6 +28,7 @@ baidu.lang.register(magic.Background, function(opt){
 	if (this.styleBox) {
 		this._innerHTML = ["<table borde='0' cellpadding='0' cellspacing='0' "
 		,(baidu.browser.ie < 7 ? "class='gif__' " : "")
+		,"id='", this.getId("table") ,"' "
 		,"style='width:100%;height:100%;'>"
 		,"<tr class='top__'>"
 			,"<td class='left__ corner__'>&nbsp;</td>"

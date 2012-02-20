@@ -59,27 +59,6 @@
 
 		baidu.object.extend(me, options || {})
 
-		var box = factory.produce();
-		me.mappingDom("", box.getElement());
-		me.mappingDom("content", box.getElement("content"));
-		box.getElement().style.zIndex = baidu.global.getZIndex("popup");
-		me.background = new magic.Background({coverable:true, styleBox:me.styleBox});
-		me.background.render(me.getElement());
-		baidu.dom.insertHTML(me.background.getElement(), "afterbegin", "<div class='arrow_top'></div><div class='arrow_bottom'></div>");
-		box.getElement("close").onclick=function(){me.hide(); return false;};
-		me.setContent(me.content);
-
-		me.on("show", function(){
-            me.direction = "top";
-			me.smartPosition && me._resupinate && (me.direction = "bottom");
-			me.background.getElement().className = "tang-background arrow_"+ me.align +" arrow_"+ me.direction;
-			// [TODO] 1.show被执行两次；2.smartPosition对左右的翻转处理
-		});
-
-		me.on("dispose", function(){
-			bgl.parentNode.removeChild(bgl);
-			box.busy = false;
-		});
 	}, {
 		type : "magic.Tooltip"
 		,superClass : magic.control.Popup
@@ -87,6 +66,37 @@
 		render:function(){
 			this.setSize([this.width, this.height]);
 			this.show();
+		}
+
+		,_init_tooltip : function(){
+			var me = this;
+			
+			var box = factory.produce();
+			me.mappingDom("", box.getElement());
+			me.mappingDom("content", box.getElement("content"));
+			box.getElement().style.zIndex = baidu.global.getZIndex("popup");
+			me.background = new magic.Background({coverable:true, styleBox:me.styleBox});
+			me.background.render(me.getElement());
+			baidu.dom.insertHTML(me.background.getElement(), "afterbegin", "<div class='arrow_top'></div><div class='arrow_bottom'></div>");
+			box.getElement("close").onclick=function(){me.hide(); return false;};
+			me.container && me.container.appendChild(box.getElement());
+			me.setContent(me.content);
+
+			function rep() {
+	            me.direction = "top";
+				me.smartPosition && me._resupinate && (me.direction = "bottom");
+				var cname = me.background.getElement().className.replace(/ (align|dir)_\w+/g, "");
+				me.background.getElement().className = cname +" align_"+ me.align +" dir_"+ me.direction;
+			}
+			me.on("show", function(){rep()});
+			me.on("reposition", function(){rep()});
+
+			me.on("dispose", function(){
+				var bgl = me.background.getElement();
+				bgl.parentNode.removeChild(bgl);
+				me.container && document.body.appendChild(box.getElement());
+				box.busy = false;
+			});
 		}
 	})
 

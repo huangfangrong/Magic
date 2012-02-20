@@ -154,7 +154,7 @@ magic.control.Popup = baidu.lang.createClass(function(options){
 		me.on("show", function(){
 			me.reposition();
 			// 这句延迟是为了el.click->show()，doc.click->hide()导致popup不能显示的问题
-			setTimeout(function(){list[me.guid] = true;}, 1);
+			setTimeout(function(){me.guid && (list[me.guid] = true);}, 1);
 			me._host && baidu.event.on(me._host, "onclick", protect);
 			baidu.event.on(me.getElement(), "onclick", protect);
 			baidu.event.on(window, "onresize", resize);
