@@ -39,7 +39,7 @@
  * @config  {Number|String}	width 	[r/w]弹出层的宽度，默认值 auto
  * @config  {Number|String}	height 	[r/w]弹出层的高度，默认值 auto
  *
- * @config	{String}	align		[r/w]箭头所处 左中右 的位置 left|center right
+ * @config	{String}		align		[r/w]箭头所处 左中右 的位置 left|center right
  * @config	{String}		bgColor 	[r/w]遮罩层背景色
  * @config  {Number}		opacity 	[r/w]背景层透明度，取值 0-1
  * @config  {HTMLElement}	container 	[r/w]遮罩层的容器，默认为 document.body
@@ -82,6 +82,7 @@
 			me.container && me.container.appendChild(box.getElement());
 			me.setContent(me.content);
 
+			// 在重定位的时候需要不断地调整“箭头”的位置
 			function rep() {
 	            me.direction = "top";
 				me.smartPosition && me._resupinate && (me.direction = "bottom");

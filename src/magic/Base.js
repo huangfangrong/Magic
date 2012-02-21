@@ -17,7 +17,7 @@
 /**
  * UI基类，所有的UI都应该从这个类中派生出去
  * @name magic.Base
- * @grammar magic.Base
+ * @grammar magic.Base()
  * @class
  * @return {magic.Base}
  * @author meizz
