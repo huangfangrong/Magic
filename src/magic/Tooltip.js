@@ -59,6 +59,7 @@
 
 		baidu.object.extend(me, options || {})
 
+		me._init_tooltip();
 	}, {
 		type : "magic.Tooltip"
 		,superClass : magic.control.Popup
